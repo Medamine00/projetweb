@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Role Actions Page</title>
+  <style>
+    /* Basic styling for the page */
+    .page-container {
+      padding: 20px;
+      display: flex;
+      justify-content: space-around;
+    }
+    .role-section {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      width: 250px;
+      background-color: #f1f1f1;
+      text-align: center;
+    }
+    .role-section h3 {
+      color: #333;
+      margin-bottom: 15px;
+    }
+    .action-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+    }
+    /* Role-specific colors */
+    .teacher-section .action-btn { background-color: #4CAF50; }
+    .student-section .action-btn { background-color: #2196F3; }
+    .admin-section .action-btn { background-color: #FF5722; }
+  </style>
+</head>
+<body>
+
+<div class="page-container">
+  <!-- Teacher Actions -->
+  <div class="role-section teacher-section">
+    <h3>Teacher Actions</h3>
+    <button class="action-btn" onclick="alert('Modify Quizzes')">Modify Quizzes</button>
+    <button class="action-btn" onclick="alert('Add Quizzes')">Add Quizzes</button>
+    <button class="action-btn" onclick="alert('Delete Quizzes')">Delete Quizzes</button>
+    <button class="action-btn" onclick="alert('Login')">Login</button>
+  </div>
+
+  <!-- Student Actions -->
+  <div class="role-section student-section">
+    <h3>Student Actions</h3>
+    <button class="action-btn" onclick="alert('Register')">Register</button>
+    <button class="action-btn" onclick="alert('Validate Quizzes')">Validate Quizzes</button>
+    <button class="action-btn" onclick="alert('Get Grades')">Get Grades</button>
+    <button class="action-btn" onclick="alert('Authenticate')">Authenticate</button>
+  </div>
+
+  <!-- Admin Actions -->
+  <div class="role-section admin-section">
+    <h3>Admin Actions</h3>
+    <button class="action-btn" onclick="alert('Manage Courses')">Manage Courses</button>
+  </div>
+</div>
+
+</body>
+</html>
