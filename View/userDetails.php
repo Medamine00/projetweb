@@ -1,3 +1,14 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'manager_des_stages' && $_SESSION['role'] !== 'admin')) {
+    header('Location: login.php?error=unauthorized');
+    exit();
+}
+
+require_once '../Model/User.php';
+$pdo = config::getConnexion();
+$users = User::listUsers($pdo);
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -55,6 +66,24 @@
     .form-container select {
       margin-bottom: 15px;
     }
+    input.is-invalid,
+select.is-invalid {
+  border-color: #dc3545;
+  background-color: #f8d7da;
+}
+
+input.is-valid,
+select.is-valid {
+  border-color: #28a745;
+  background-color: #d4edda;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
 
   </style>
 </head>
@@ -120,19 +149,28 @@
 
     <!-- Main wrapper -->
     <div class="body-wrapper">
-      <!-- Header Start -->
-      <header class="app-header">
-        <nav class="navbar navbar-expand-lg navbar-light">
-          <ul class="navbar-nav">
-            <li class="nav-item d-block d-xl-none">
-              <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse" href="javascript:void(0)">
-                <i class="ti ti-menu-2"></i>
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </header>
-      <!-- Header End -->
+       <!-- Header Start -->
+       <header class="app-header">
+                <nav class="navbar navbar-expand-lg navbar-light">
+                    <ul class="navbar-nav">
+                        <li class="nav-item d-block d-xl-none">
+                            <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse"
+                                href="javascript:void(0)">
+                                <i class="ti ti-menu-2"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <span class="nav-link">Bienvenue, <strong><?php echo htmlspecialchars($_SESSION['user_name']); ?></strong></span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="../Controller/UserController.php?action=logout">Se déconnecter</a>
+                        </li>
+                    </ul>
+                </nav>
+            </header>
+            <!-- Header End -->
 
       <!-- Page Content -->
       <div class="container-fluid">
@@ -146,56 +184,60 @@
               <table class="table text-nowrap align-middle mb-0">
                 <thead>
                   <tr class="border-2 border-bottom border-primary border-0">
+                    <th scope="col" class="ps-0">Id</th>
                     <th scope="col" class="ps-0">Nom</th>
                     <th scope="col">Prénom</th>
-                    <th scope="col">Adresse Email</th>
                     <th scope="col">Niveau Universitaire</th>
                     <th scope="col">Université</th>
                     <th scope="col">Rôle</th>
+                    <th scope="col">Adresse Email</th>
+                    <th scope="col">Mot de passe</th>
+                    <th scope="col">Etat</th>
                     <th scope="col" class="text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody class="table-group-divider">
                   <!-- User Entries -->
-                  <tr>
-                    <th scope="row" class="ps-0 fw-medium">Bennour</th>
-                    <td>Adem</td>
-                    <td>Adem.bennour@mail.com</td>
-                    <td>3ème année</td>
-                    <td>Esprit</td>
-                    <td>Etudiant</td>
-                    <td class="text-center">
-                      <button class="btn btn-modifier btn-sm" onclick="showEditUserForm('Bennour', 'Adem', 'adem.bennour@mail.com', '3ème année', 'Esprit', 'Etudiant')">Modifier</button>
-                      <button class="btn btn-supprimer btn-sm">Supprimer</button>
-                      <button class="btn btn-restrict btn-sm">Restrict</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row" class="ps-0 fw-medium">Rayen</th>
-                    <td>Jarray</td>
-                    <td>Jarray.rayen@mail.com</td>
-                    <td>2ème année</td>
-                    <td>MedTech</td>
-                    <td>Gestionnaire de stages</td>
-                    <td class="text-center">
-                      <button class="btn btn-modifier btn-sm" onclick="showEditUserForm('Rayen', 'Jarray', 'Jarray.rayen@mail.com', '2ème année', 'MedTech', 'Gestionnaire de stages')">Modifier</button>
-                      <button class="btn btn-supprimer btn-sm">Supprimer</button>
-                      <button class="btn btn-restrict btn-sm">Restrict</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row" class="ps-0 fw-medium">Anas</th>
-                    <td>Lemjid</td>
-                    <td>anas.lemjid@gmail.com</td>
-                    <td>4ème année</td>
-                    <td>Faculte des sciences</td>
-                    <td>Gestionnaire de formations</td>
-                    <td class="text-center">
-                      <button class="btn btn-modifier btn-sm" onclick="showEditUserForm('Lemjid', 'anas', 'anas.lemjid@gmail.com', '4ème année', 'Faculte des sciences', 'Gestionnaire des formations')">Modifier</button>
-                      <button class="btn btn-supprimer btn-sm">Supprimer</button>
-                      <button class="btn btn-restrict btn-sm">Restrict</button>
-                    </td>
-                  </tr>
+                  
+                  
+                  <?php foreach ($users as $user): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($user['id']); ?></td>
+                        <td><?= htmlspecialchars($user['nom']); ?></td>
+                        <td><?= htmlspecialchars($user['prenom']); ?></td>
+                        <td><?= htmlspecialchars($user['niveauUni']); ?></td>
+                        <td><?= htmlspecialchars($user['universite']); ?></td>
+                        <td><?= htmlspecialchars($user['role']); ?></td>
+                        <td><?= htmlspecialchars($user['email']); ?></td>
+                        <td><?= htmlspecialchars($user['password']); ?></td>
+                        <td><?= htmlspecialchars($user['etat']); ?></td>
+                        <td>
+                            <button class="btn btn-modifier btn-sm"
+                                onclick="showEditUserForm(
+                                    '<?= $user['id']; ?>',
+                                    '<?= addslashes($user['nom']); ?>',
+                                    '<?= addslashes($user['prenom']); ?>',
+                                    '<?= addslashes($user['niveauUni']); ?>',
+                                    '<?= addslashes($user['universite']); ?>',
+                                    '<?= addslashes($user['role']); ?>',
+                                    '<?= addslashes($user['email']); ?>',
+                                    '<?= addslashes($user['password']); ?>',
+                                    '<?= $user['etat']; ?>'
+                                )">Modifier</button>
+                            <form action="../Controller/UserController.php?action=deleteUser" method="POST" style="display:inline;">
+                                <input type="hidden" name="id" value="<?= $user['id']; ?>">
+                                <button type="submit" class="btn btn-supprimer btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                </button>
+                            </form>
+                            <button class="btn btn-restrict btn-sm">Restrict</button>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+
+
+
+
                   <!-- More user entries... -->
                 </tbody>
               </table>
@@ -209,24 +251,33 @@
   <div class="card mt-4">
     <div class="card-body">
       <h5 class="card-title">Ajouter un Utilisateur</h5>
-      <form id="addUser">
-        <div class="mb-3">
-          <label for="nom" class="form-label">Nom</label>
-          <input type="text" class="form-control" id="nom" required>
+      <form id="addUser" action="../Controller/UserController.php?action=addUser" method="POST">
+        <div>
+        <input type="number" class="form-control" id="id" name="id" hidden>
+        <input type="number" class="form-control" id="etat" name="etat" hidden>
         </div>
         <div class="mb-3">
-          <label for="prenom" class="form-label">Prénom</label>
-          <input type="text" class="form-control" id="prenom" required>
-        </div>
+        <label for="nom" class="form-label">Nom</label>
+        <input type="text" class="form-control" id="nom" name="nom" placeholder="Entrez le nom">
+      </div>
+      <div class="mb-3">
+        <label for="prenom" class="form-label">Prénom</label>
+        <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Entrez le prénom">
+      </div>
+
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
-          <input type="email" class="form-control" id="email" required>
+          <input type="email" class="form-control" id="email" name="email" >
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Mot de passe:</label>
+          <input type="password" class="form-control" id="password" name="password" >
         </div>
         
         <!-- Combo box for Niveau Universitaire -->
         <div class="mb-3">
-          <label for="niveauUniversitaire" class="form-label">Niveau Universitaire</label>
-          <select name="niveauUniversitaire" id="niveauUniversitaire" class="form-control" required>
+          <label for="niveauUni" class="form-label">Niveau Universitaire</label>
+          <select name="niveauUni" id="niveauUni" class="form-control" >
             <option value=""></option>
             <option value="1ere">1ère année</option>
             <option value="2eme">2ème année</option>
@@ -239,7 +290,7 @@
         <!-- Combo box for Université -->
         <div class="mb-3">
           <label for="universite" class="form-label">Université</label>
-          <select name="universite" id="universite" class="form-control" required>
+          <select name="universite" id="universite" class="form-control" >
             <option value=""></option>
             <option value="Esprit">Esprit</option>
             <option value="MedTech">MedTech</option>
@@ -251,13 +302,12 @@
         <!-- Combo box for Rôle -->
         <div class="mb-3">
           <label for="role" class="form-label">Rôle</label>
-          <select name="role" id="role" class="form-control" required>
+          <select name="role" id="role" class="form-control" >
             <option value=""></option>
-            <option value="etudiant">Etudiant</option>
-            <option value="gestionnaire_des_cours">Gestionnaire des cours</option>
-            <option value="gestionnaire_des_formations">Gestionnaire des formations</option>
-            <option value="gestionnaire_des_stages">Gestionnaire des stages</option>
-            <option value="gestionnaire_des_quizz">Gestionnaire des Quizz</option>
+            <option value="etudiant">etudiant</option>
+            <option value="admin">admin</option>
+            <option value="enseignant">enseignant</option>
+            <option value="manager_des_stages">manager_des_stages</option>
           </select>
         </div>
         
@@ -275,24 +325,32 @@
   <div class="card mt-4">
     <div class="card-body">
       <h5 class="card-title">Modifier l'Utilisateur</h5>
-      <form id="editUser">
+      <form id="editUser" action="../Controller/UserController.php?action=updateUser" method="POST">
+      <div>
+        <input type="number" class="form-control" id="editId" name="editId" hidden>
+        <input type="number" class="form-control" id="editEtat" name="editEtat" hidden>
+        </div>
         <div class="mb-3">
           <label for="editNom" class="form-label">Nom</label>
-          <input type="text" class="form-control" id="editNom" required>
+          <input type="text" class="form-control" id="editNom" name="editNom">
         </div>
         <div class="mb-3">
           <label for="editPrenom" class="form-label">Prénom</label>
-          <input type="text" class="form-control" id="editPrenom" required>
+          <input type="text" class="form-control" id="editPrenom" name="editPrenom">
         </div>
         <div class="mb-3">
           <label for="editEmail" class="form-label">Email</label>
-          <input type="email" class="form-control" id="editEmail" required>
+          <input type="email" class="form-control" id="editEmail" name="editEmail">
+        </div>
+        <div class="mb-3">
+          <label for="editPassword" class="form-label">Mot de passe</label>
+          <input type="password" class="form-control" id="editPassword" name="editPassword">
         </div>
         
         <!-- Combo box for Niveau Universitaire -->
         <div class="mb-3">
-          <label for="editNiveau" class="form-label">Niveau Universitaire</label>
-          <select name="editNiveau" id="editNiveau" class="form-control" required>
+          <label for="editNiveauUni" class="form-label">Niveau Universitaire</label>
+          <select name="editNiveauUni" id="editNiveauUni" class="form-control" >
             <option value=""></option>
             <option value="1ere">1ère année</option>
             <option value="2eme">2ème année</option>
@@ -305,7 +363,7 @@
         <!-- Combo box for Université -->
         <div class="mb-3">
           <label for="editUniversite" class="form-label">Université</label>
-          <select name="editUniversite" id="editUniversite" class="form-control" required>
+          <select name="editUniversite" id="editUniversite" class="form-control" >
             <option value=""></option>
             <option value="Esprit">Esprit</option>
             <option value="MedTech">MedTech</option>
@@ -317,13 +375,12 @@
         <!-- Combo box for Rôle -->
         <div class="mb-3">
           <label for="editRole" class="form-label">Rôle</label>
-          <select name="editRole" id="editRole" class="form-control" required>
+          <select name="editRole" id="editRole" class="form-control" >
             <option value=""></option>
             <option value="etudiant">Etudiant</option>
-            <option value="gestionnaire_des_cours">Gestionnaire des cours</option>
-            <option value="gestionnaire_des_formations">Gestionnaire des formations</option>
-            <option value="gestionnaire_des_stages">Gestionnaire des stages</option>
-            <option value="gestionnaire_des_quizz">Gestionnaire des Quizz</option>
+            <option value="admin">Administrateur</option>
+            <option value="enseignant">Enseignant</option>
+            <option value="manager_des_stages">Manager des stages</option>
           </select>
         </div>
         
@@ -347,22 +404,115 @@
     }
 
     // Show Edit User Form with pre-filled data
-    function showEditUserForm(nom, prenom, email, niveau, universite, role) {
-      document.getElementById('addUserForm').style.display = 'none';
-      document.getElementById('editUserForm').style.display = 'block';
-      document.getElementById('editNom').value = nom;
-      document.getElementById('editPrenom').value = prenom;
-      document.getElementById('editEmail').value = email;
-      document.getElementById('editNiveau').value = niveau;
-      document.getElementById('editUniversite').value = universite;
-      document.getElementById('editRole').value = role;
-    }
+    function showEditUserForm(id, nom, prenom, niveau, universite, role, email, password, etat) {
+    document.getElementById('addUserForm').style.display = 'none';
+    document.getElementById('editUserForm').style.display = 'block';
+    document.getElementById('editId').value = id;
+    document.getElementById('editNom').value = nom;
+    document.getElementById('editPrenom').value = prenom;
+    document.getElementById('editEmail').value = email;
+    document.getElementById('editPassword').value = password;
+    document.getElementById('editNiveauUni').value = niveau;
+    document.getElementById('editUniversite').value = universite;
+    document.getElementById('editRole').value = role;
+    document.getElementById('editEtat').value = etat;
+}
+
 
     // Hide both forms
     function hideForms() {
       document.getElementById('addUserForm').style.display = 'none';
       document.getElementById('editUserForm').style.display = 'none';
     }
+    document.querySelectorAll('.btn-supprimer').forEach(button => {
+    button.addEventListener('click', function (event) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+            event.preventDefault(); // Cancel the form submission
+        }
+    });
+  });
+
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+  // Add User Form Validation
+  const addUserForm = document.getElementById("addUser");
+  addUserForm.addEventListener("submit", function (event) {
+    if (!validateForm(addUserForm)) {
+      event.preventDefault();
+    }
+  });
+
+  // Edit User Form Validation
+  const editUserForm = document.getElementById("editUser");
+  editUserForm.addEventListener("submit", function (event) {
+    if (!validateForm(editUserForm)) {
+      event.preventDefault();
+    }
+  });
+
+  function validateForm(form) {
+    let isValid = true;
+    const inputs = form.querySelectorAll("input, select");
+
+    inputs.forEach((input) => {
+      // Remove existing feedback messages
+      const feedback = input.nextElementSibling;
+      if (feedback && feedback.classList.contains("invalid-feedback")) {
+        feedback.remove();
+      }
+
+      // Reset input styles
+      input.classList.remove("is-invalid");
+      input.classList.remove("is-valid");
+
+      // Validation logic
+      if (input.id === "nom" || input.id === "prenom" || input.id === "editNom" || input.id === "editPrenom") {
+        if (!input.value.trim()) {
+          isValid = false;
+          showError(input, "Ce champ est requis.");
+        } else if (/\d/.test(input.value)) {
+          isValid = false;
+          showError(input, "Ce champ ne peut pas contenir de chiffres.");
+        } else {
+          showSuccess(input);
+        }
+      }
+
+      if (input.type === "email" && input.value.trim()) {
+        if (!validateEmail(input.value)) {
+          isValid = false;
+          showError(input, "Veuillez entrer une adresse email valide.");
+        } else {
+          showSuccess(input);
+        }
+      }
+
+      
+    });
+
+    return isValid;
+  }
+
+  function showError(input, message) {
+    input.classList.add("is-invalid");
+    const errorFeedback = document.createElement("div");
+    errorFeedback.className = "invalid-feedback";
+    errorFeedback.textContent = message;
+    input.insertAdjacentElement("afterend", errorFeedback);
+  }
+
+  function showSuccess(input) {
+    input.classList.add("is-valid");
+  }
+
+  function validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
+});
+
+
   </script>
 </body>
 
