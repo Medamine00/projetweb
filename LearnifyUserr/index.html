@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Action</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 15px 40px;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button.details {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+        }
+
+        .button.details:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+        }
+
+        .button.login {
+            background: linear-gradient(45deg, #28a745, #1c7430);
+        }
+
+        .button.login:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome! Choose Your Action</h1>
+        <div class="buttons">
+            <a href="./View/userDetails.php" class="button details">Go to BackOffice Page</a>
+            <a href="./View/login.php" class="button login">Go to FrontOffice Page</a>
+        </div>
+    </div>
+</body>
+</html>
