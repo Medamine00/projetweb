@@ -130,6 +130,15 @@ select.is-valid {
     background-color: #3388e6; /* Slightly darker blue */
     color: white;
   }
+  .btn-unrestrict {
+    background-color: #3399ff; /* Medium blue */
+    color: white;
+  }
+
+  .btn-unrestrict:hover {
+    background-color: #3388e6; /* Slightly darker blue */
+    color: white;
+  }
 
   .form-container {
     margin-top: 20px;
@@ -387,7 +396,19 @@ font-size: 0.875rem;
                                     <i class="fas fa-trash-alt"></i> Supprimer
                                 </button>
                             </form>
-                            <button class="btn btn-restrict btn-sm">Restrict</button>
+                            <form action="../Controller/UserController.php?action=restrictUser" method="POST" style="display:inline;">
+                              <input type="hidden" name="id" value="<?= $user['id']; ?>">
+                              <input type="hidden" name="etat" value="<?= $user['etat']; ?>">
+                              <?php if ($user['etat']==0): ?>
+                              <button type="submit" class="btn btn-restrict btn-sm">
+                                <i class="fas fa-block-alt"></i>Restrict
+                              </button>
+                              <?php else: ?>
+                                <button type="submit" class="btn btn-unrestrict btn-sm">
+                                  <i class="fas fa-block-alt"></i>Unrestrict
+                                </button>
+                              <?php endif; ?>
+                            </form>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -626,7 +647,21 @@ font-size: 0.875rem;
         }
     });
   });
-
+  
+  document.querySelectorAll('.btn-restrict').forEach(button => {
+    button.addEventListener('click', function (event) {
+        if (!confirm('Êtes-vous sûr de vouloir restrict cet utilisateur ?')) {
+            event.preventDefault(); // Cancel the form submission
+        }
+    });
+  });
+  document.querySelectorAll('.btn-unrestrict').forEach(button => {
+    button.addEventListener('click', function (event) {
+        if (!confirm('Êtes-vous sûr de vouloir unrestrict cet utilisateur ?')) {
+            event.preventDefault(); // Cancel the form submission
+        }
+    });
+  });
 
 
   document.addEventListener("DOMContentLoaded", function () {

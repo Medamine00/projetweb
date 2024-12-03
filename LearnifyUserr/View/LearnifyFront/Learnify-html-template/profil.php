@@ -127,7 +127,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : null;
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="editPassword" placeholder="Enter new password if you want to update">
+                        <input type="password" class="form-control" id="password" name="editPassword" value="<?php echo htmlspecialchars($user['password']); ?>" placeholder="Enter new password if you want to update">
                     </div>
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary">Update Profile</button>

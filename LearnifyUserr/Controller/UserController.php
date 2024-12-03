@@ -88,7 +88,40 @@ public function updateUser() {
     }
 }   
 
-    
+public function restrictUser() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Safely retrieve the user ID
+        $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
+        $etat = isset($_POST['etat']) ? (int) $_POST['etat'] : 0;
+        // Check if ID is valid
+        if ($id <= 0) {
+            header('Location: ../View/userDetails.php?error=invalid_id');
+            exit;
+        }
+        if ($etat == 0) {
+            // Call the model method to delete the user
+            $user = new User($id, '', '', '', '', '', $etat, '', '', $this->pdo);
+            if ($user->restrictUser($id,1)) {
+                header('Location: ../View/userDetails.php?success=restrected');
+            } else {
+                header('Location: ../View/userDetails.php?error=drestrict_failed');
+            }
+            exit;
+        }
+        else {
+            // Call the model method to delete the user
+            $user = new User($id, '', '', '', '', '', $etat, '', '', $this->pdo);
+            if ($user->restrictUser($id,0)) {
+                header('Location: ../View/userDetails.php?success=restrected');
+            } else {
+                header('Location: ../View/userDetails.php?error=drestrict_failed');
+            }
+            exit;
+        }
+
+        
+    }
+}   
     
 
 
@@ -140,19 +173,27 @@ public function updateUser() {
                 $user = $stmt->fetch();
     
                 if ($user && $password === $user['password']) { // Plain-text comparison
-                    // Start session and set session variables
-                    session_start();
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['user_name'] = $user['nom'] . ' ' . $user['prenom'];
-                    $_SESSION['role'] = $user['role'];
-    
-                    // Redirect based on user role
-                    if ($user['role'] === 'manager_des_stages' || $user['role'] === 'admin') {
-                        header('Location: ../View/userDetails.php');
-                    } else {
-                        header('Location: ../View/LearnifyFront/Learnify-html-template/front.php');
+                    if ($user['etat'] == 0) {
+                        # code...
+                    
+                        // Start session and set session variables
+                        session_start();
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_name'] = $user['nom'] . ' ' . $user['prenom'];
+                        $_SESSION['role'] = $user['role'];
+        
+                        // Redirect based on user role
+                        if ($user['role'] === 'manager_des_stages' || $user['role'] === 'admin') {
+                            header('Location: ../View/userDetails.php');
+                        } else {
+                            header('Location: ../View/LearnifyFront/Learnify-html-template/front.php');
+                        }
+                        exit();
                     }
-                    exit();
+                    else {
+                        header('Location: ../View/login.php?error=user_blocked');
+                        exit();
+                    }
                 } else {
                     header('Location: ../View/login.php?error=invalid_credentials');
                     exit();
@@ -199,9 +240,9 @@ public function updateUser() {
     
             // Save user to the database
             try {
-                $user = new User(0, $nom, $prenom, $niveauUniversitaire, $universite, 'etudiant', 1, $email, $motDePasse, $this->pdo);
+                $user = new User(0, $nom, $prenom, $niveauUniversitaire, $universite, 'etudiant', 0, $email, $motDePasse, $this->pdo);
                 if ($user->save()) {
-                    header('Location: ../View/LearnifyFront/Learnify-html-template/front.php?success=true');
+                    header('Location: ../View/login.php?success=true');
                 } else {
                     header('Location: ../View/signup.php?error=save_failed');
                 }
@@ -263,6 +304,62 @@ public function updateUser() {
         }
     }
     
+    public function passwordReset() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = $_POST['email'] ?? '';
+    
+            // Validate email
+            if (empty($email)) {
+                header('Location: ../View/oublierMDP.php?error=missing_email');
+                exit();
+            }
+    
+            try {
+                // Check if the email exists
+                $stmt = $this->pdo->prepare("SELECT id FROM user WHERE email = :email");
+                $stmt->execute(['email' => $email]);
+                $user = $stmt->fetch();
+    
+                if ($user) {
+                    // Generate reset token and expiration
+                    $resetToken = bin2hex(random_bytes(16));
+                    $expiresAt = date("Y-m-d H:i:s", strtotime('+1 hour'));
+    
+                    // Store the reset token in the database
+                    $updateStmt = $this->pdo->prepare("
+                        UPDATE user SET reset_token = :token, token_expiry = :expiry WHERE email = :email
+                    ");
+                    $updateStmt->execute([
+                        'token' => $resetToken,
+                        'expiry' => $expiresAt,
+                        'email' => $email
+                    ]);
+    
+                    // Generate reset link
+                    $resetLink = "http://localhost/LearnifyUser/View/resetPassword.php?token=$resetToken";
+
+    
+                    // Send email
+                    mail(
+                        $email,
+                        "Password Reset Request",
+                        "Click the following link to reset your password: $resetLink",
+                        "From: adembennour3@gmail.com"
+                    );
+    
+                    header('Location: ../View/oublierMDP.php?success=email_sent');
+                    exit();
+                } else {
+                    header('Location: ../View/oublierMDP.php?error=email_not_found');
+                    exit();
+                }
+            } catch (Exception $e) {
+                error_log('Password Reset Error: ' . $e->getMessage());
+                header('Location: ../View/oublierMDP.php?error=server_error');
+                exit();
+            }
+        }
+    }
     
 
    
@@ -286,6 +383,9 @@ if (isset($_GET['action'])) {
         case 'deleteUser':
             $controller->deleteUser();
             break;
+        case 'restrictUser':
+            $controller->restrictUser();
+            break;
         case 'signUp': 
             $controller->signUp();
             break;
@@ -298,6 +398,10 @@ if (isset($_GET['action'])) {
         case 'searchAndSortUsers':
             $controller->searchAndSortUsers();
             break;
+        case 'passwordReset':
+            $controller->passwordReset();
+            break;
+            
         default:
             header('Location: ../View/userDetails.php?error=unknown_action');
     }

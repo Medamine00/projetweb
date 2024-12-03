@@ -361,6 +361,17 @@ class User {
             return false;
         }
     }
+    public function restrictUser(int $id,int $etat){
+        $sql = "UPDATE user SET etat=:etat  WHERE id = :id";
+        try {
+            $query = $this->pdo->prepare($sql);
+            $query->bindParam(':id', $id);
+            $query->bindParam(':etat', $etat);
+            return $query->execute();
+        } catch (PDOException $e) {
+            throw new Exception('Error restricting user: ' . $e->getMessage());
+        }
+    }
     
 
 }

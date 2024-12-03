@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -121,7 +123,21 @@
   <img src="../images/logo.png" alt="Logo">
   <h1>Réinitialiser le mot de passe</h1>
   <p>Veuillez entrer votre adresse email pour réinitialiser votre mot de passe.</p>
-  <form action="/passwordReset" method="POST">
+  <!-- Success or Error Messages -->
+  <?php
+  if (isset($_GET['success']) && $_GET['success'] === 'email_sent') {
+      echo '<p style="color: green; font-weight: bold;">Un email de réinitialisation a été envoyé à votre adresse.</p>';
+  } elseif (isset($_GET['error'])) {
+      if ($_GET['error'] === 'email_not_found') {
+          echo '<p style="color: red; font-weight: bold;">Aucun utilisateur trouvé avec cet email.</p>';
+      } elseif ($_GET['error'] === 'missing_email') {
+          echo '<p style="color: red; font-weight: bold;">Veuillez entrer une adresse email.</p>';
+      } elseif ($_GET['error'] === 'server_error') {
+          echo '<p style="color: red; font-weight: bold;">Une erreur serveur est survenue. Veuillez réessayer plus tard.</p>';
+      }
+  }
+  ?>
+  <form action="../Controller/UserController.php?action=passwordReset" method="POST">
     <label for="email">Adresse Email:</label>
     <input type="email" id="email" name="email" required placeholder="Entrez votre email">
     <button type="submit">Envoyer le lien de réinitialisation</button>

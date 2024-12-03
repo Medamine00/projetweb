@@ -175,6 +175,9 @@
             case 'unauthorized':
                 echo 'Please log in to access this page.';
                 break;
+            case 'user_blocked':
+                echo 'Sorry but you are blocked from this website' ;
+                break;
         }
         ?>
     </p>
@@ -195,7 +198,7 @@
   </form>
 
   <!-- Continue as Guest Button -->
-  <button class="guest-button" onclick="location.href='http://localhost/LearnifyUser/View/Learnify%20web%20site/Learnify-html-template/'">Continuer en tant qu'invité</button>
+  <a class="guest-button" href="../View/LearnifyFront/Learnify-html-template/invitee.php">Continuer en tant qu'invité</a>
 
   <!-- Forgot Password Link -->
   <div class="forgot-password">

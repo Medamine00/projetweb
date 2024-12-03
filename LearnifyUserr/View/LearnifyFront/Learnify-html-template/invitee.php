@@ -1,11 +1,3 @@
-<?php
-session_start();
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] === 'manager_des_stages' || $_SESSION['role'] === 'admin')) {
-    header('Location: login.php?error=unauthorized');
-    exit();
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -75,11 +67,10 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] === 'manager_des_stages' 
             <!-- User Info Section -->
             <div class="dropdown">
                 <button class="btn btn-primary py-2 px-4 dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa fa-user me-2"></i><?php echo htmlspecialchars($_SESSION['user_name']); ?>
+                    <i class="fa fa-user me-2"></i>Invitée
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li><a class="dropdown-item" href="../../../Controller/UserController.php?action=logout">Logout</a></li>
-                    <li><a class="dropdown-item" href="profil.php">Profile</a></li>
+                    <li><a class="dropdown-item" href="../../../View/signup.php">Join now !</a></li>
                 </ul>
             </div>
         </div>
