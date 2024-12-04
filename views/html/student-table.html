@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title of the document</title>
+    <style>
+      table, th, td {
+        border: 1px solid #666;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 10px;
+        text-align: left;
+      }
+      table {
+        width: 80%;
+        margin: 20px auto;
+      }
+      .btn {
+        padding: 5px 10px;
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+      }
+      .btn-approve {
+        background-color: #4CAF50; /* Green */
+        color: white;
+      }
+      .btn-reject {
+        background-color: #f44336; /* Red */
+        color: white;
+      }
+      .btn:hover {
+        opacity: 0.8;
+      }
+    </style>
+    <script>
+      // Function to handle the validation action
+      function validateStudent(name) {
+        alert("Student " + name + " has been validated.");
+      }
+
+      // Function to handle the rejection action and remove the student from the table
+      function rejectStudent(name, row) {
+        alert("Student " + name + " has been rejected.");
+        row.remove(); // Remove the row from the table
+      }
+    </script>
+  </head>
+  <body>
+   
+
+    <!-- New table for students' information -->
+    <h2 style="text-align:center;">Student Information</h2>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Age</th>
+        <th>Academic Level</th>
+        <th>Average Grade</th>
+        <th>Validate</th>
+        <th>Reject</th>
+      </tr>
+      <tr>
+        <td>John Doe</td>
+        <td>john.doe@example.com</td>
+        <td>22</td>
+        <td>Undergraduate</td>
+        <td>15.5</td> <!-- Added average grade -->
+        <td><button class="btn btn-approve" onclick="validateStudent('John Doe')">Validate</button></td>
+        <td><button class="btn btn-reject" onclick="rejectStudent('John Doe', this.parentNode.parentNode)">Reject</button></td>
+      </tr>
+      <tr>
+        <td>Jane Smith</td>
+        <td>jane.smith@example.com</td>
+        <td>24</td>
+        <td>Graduate</td>
+        <td>18.2</td> <!-- Added average grade -->
+        <td><button class="btn btn-approve" onclick="validateStudent('Jane Smith')">Validate</button></td>
+        <td><button class="btn btn-reject" onclick="rejectStudent('Jane Smith', this.parentNode.parentNode)">Reject</button></td>
+      </tr>
+      <tr>
+        <td>Ahmed Ali</td>
+        <td>ahmed.ali@example.com</td>
+        <td>23</td>
+        <td>Undergraduate</td>
+        <td>13.7</td> <!-- Added average grade -->
+        <td><button class="btn btn-approve" onclick="validateStudent('Ahmed Ali')">Validate</button></td>
+        <td><button class="btn btn-reject" onclick="rejectStudent('Ahmed Ali', this.parentNode.parentNode)">Reject</button></td>
+      </tr>
+      <tr>
+        <td>Maria Garcia</td>
+        <td>maria.garcia@example.com</td>
+        <td>21</td>
+        <td>Freshman</td>
+        <td>17.8</td> <!-- Added average grade -->
+        <td><button class="btn btn-approve" onclick="validateStudent('Maria Garcia')">Validate</button></td>
+        <td><button class="btn btn-reject" onclick="rejectStudent('Maria Garcia', this.parentNode.parentNode)">Reject</button></td>
+      </tr>
+    </table>
+  </body>
+</html>
