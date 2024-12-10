@@ -167,56 +167,76 @@ font-size: 0.875rem;
 }
 /* Stats Section Styling */
 .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
 
-  .card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 25px;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
+.card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  text-align: center;
+  position: relative;
+}
 
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
+.card .circle {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 15px;
+  position: relative;
+}
 
-  .card .icon {
-    font-size: 40px;
-    color: #6c757d;
-    margin-bottom: 15px;
-  }
+.card .circle svg {
+  transform: rotate(-90deg);
+}
 
-  .card .title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 10px;
-  }
+.card .circle circle {
+  fill: none;
+  stroke-width: 10;
+}
 
-  .card .value {
-    font-size: 28px;
-    font-weight: 700;
-    color: #007bff;
-  }
+.card .circle .progress {
+  stroke: #007bff;
+  stroke-dasharray: 440; /* Circumference of the circle */
+  stroke-dashoffset: 440; /* Initially hidden */
+  transition: stroke-dashoffset 1s ease-in-out;
+}
 
-  .card .info {
-    font-size: 14px;
-    color: #6c757d;
-    margin-top: 10px;
-  }
+.card .circle .background {
+  stroke: #e9ecef;
+}
 
-  .card .percentage {
-    font-size: 16px;
-    font-weight: 500;
-    color: #28a745;
-  }
+.card .title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.card .value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #007bff;
+}
+
+.card .info {
+  font-size: 14px;
+  color: #6c757d;
+  margin-top: 10px;
+}
+
+.card .percentage {
+  font-size: 16px;
+  font-weight: 500;
+  color: #28a745;
+}
+
+.card:hover .progress {
+  stroke-dashoffset: calc(440 - (440 * <?= isset($stats['percentage_users']) ? $stats['percentage_users'] : 0 ?>) / 100);
+}
 
   /* Add a little space between the stats and table */
   .table-container {
@@ -342,10 +362,34 @@ font-size: 0.875rem;
                   <div class="col-md-3">
                     <button type="submit" class="btn btn-primary">Search</button>
                   </div>
+                  <div class="actions">
+                      <!-- Other user actions here -->
+                      <a href="../Controller/UserController.php?action=viewAllUsers" class="btn">Voir l'historique</a>
+                  </div>
                 </div>
               </form>
 
             </div>
+            
+
+            <style>
+                .btn {
+                    display: inline-block;
+                    padding: 10px 20px;
+                    background-color: #333a59;
+                    color: #fff;
+                    border-radius: 6px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    transition: all 0.3s ease;
+                }
+
+                .btn:hover {
+                    background-color: #181d38;
+                    transform: scale(1.05);
+                }
+            </style>
+
             <div class="table-responsive">
               <table class="table text-nowrap align-middle mb-0">
                 <thead>
@@ -426,38 +470,58 @@ font-size: 0.875rem;
 
         <!-- Statistics -->
         <div class="stats">
-        <div class="card">
-          <div class="icon"><i class="fas fa-users"></i></div>
-          <div class="title">Total Users</div>
-          <div class="value"><?= isset($stats['total_users']) ? $stats['total_users'] : 0 ?></div>
-          <div class="info">All registered users</div>
-          <div class="percentage"><?= isset($stats['percentage_users']) ? $stats['percentage_users'] : 0 ?>% of active users</div>
-        </div>
+  <div class="card">
+    <div class="circle">
+      <svg width="100" height="100">
+        <circle class="background" cx="50" cy="50" r="35"></circle>
+        <circle class="progress" cx="50" cy="50" r="35"></circle>
+      </svg>
+    </div>
+    <div class="title">Total Users</div>
+    <div class="value"><?= isset($stats['total_users']) ? $stats['total_users'] : 0 ?></div>
+    <div class="info">All registered users</div>
+    <div class="percentage"><?= isset($stats['percentage_users']) ? $stats['percentage_users'] : 0 ?>% of active users</div>
+  </div>
 
-        <div class="card">
-          <div class="icon"><i class="fas fa-user-shield"></i></div>
-          <div class="title">Admins</div>
-          <div class="value"><?= isset($stats['total_admins']) ? $stats['total_admins'] : 0 ?></div>
-          <div class="info">Admins in the system</div>
-          <div class="percentage"><?= isset($stats['percentage_admins']) ? $stats['percentage_admins'] : 0 ?>% of total users</div>
-        </div>
+  <div class="card">
+    <div class="circle">
+      <svg width="100" height="100">
+        <circle class="background" cx="50" cy="50" r="35"></circle>
+        <circle class="progress" cx="50" cy="50" r="35"></circle>
+      </svg>
+    </div>
+    <div class="title">Admins</div>
+    <div class="value"><?= isset($stats['total_admins']) ? $stats['total_admins'] : 0 ?></div>
+    <div class="info">Admins in the system</div>
+    <div class="percentage"><?= isset($stats['percentage_admins']) ? $stats['percentage_admins'] : 0 ?>% of total users</div>
+  </div>
 
-        <div class="card">
-          <div class="icon"><i class="fas fa-user-tie"></i></div>
-          <div class="title">Managers</div>
-          <div class="value"><?= isset($stats['total_managers']) ? $stats['total_managers'] : 0 ?></div>
-          <div class="info">Managers handling tasks</div>
-          <div class="percentage"><?= isset($stats['percentage_managers']) ? $stats['percentage_managers'] : 0 ?>% of total users</div>
-        </div>
+  <div class="card">
+    <div class="circle">
+      <svg width="100" height="100">
+        <circle class="background" cx="50" cy="50" r="35"></circle>
+        <circle class="progress" cx="50" cy="50" r="35"></circle>
+      </svg>
+    </div>
+    <div class="title">Managers</div>
+    <div class="value"><?= isset($stats['total_managers']) ? $stats['total_managers'] : 0 ?></div>
+    <div class="info">Managers handling tasks</div>
+    <div class="percentage"><?= isset($stats['percentage_managers']) ? $stats['percentage_managers'] : 0 ?>% of total users</div>
+  </div>
 
-        <div class="card">
-          <div class="icon"><i class="fas fa-check-circle"></i></div>
-          <div class="title">Active Users</div>
-          <div class="value"><?= isset($stats['active_users']) ? $stats['active_users'] : 0 ?></div>
-          <div class="info">Currently active users</div>
-          <div class="percentage"><?= isset($stats['percentage_active']) ? $stats['percentage_active'] : 0 ?>% of total users</div>
-        </div>
-      </div>
+  <div class="card">
+    <div class="circle">
+      <svg width="100" height="100">
+        <circle class="background" cx="50" cy="50" r="35"></circle>
+        <circle class="progress" cx="50" cy="50" r="35"></circle>
+      </svg>
+    </div>
+    <div class="title">Active Users</div>
+    <div class="value"><?= isset($stats['active_users']) ? $stats['active_users'] : 0 ?></div>
+    <div class="info">Currently active users</div>
+    <div class="percentage"><?= isset($stats['percentage_active']) ? $stats['percentage_active'] : 0 ?>% of total users</div>
+  </div>
+</div>
 
 
 

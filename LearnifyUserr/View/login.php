@@ -115,20 +115,28 @@
     text-decoration: underline;
   }
 
-  /* Continue as Guest Button */
-  .guest-button {
-    width: 100%;
-    background-color: #f0f0f0;
-    color: #333a59;
-    padding: 0.8rem;
-    border: 1px solid #181d38;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 1rem;
-  }
+/* Continue as Guest Button */
+.guest-button {
+  width: 100%;
+  background-color: #f0f0f0;
+  color: #333a59;
+  padding: 0.8rem; /* Same padding as other buttons */
+  border: 1px solid #181d38;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  text-align: center; /* Ensures text alignment */
+  display: block; /* Makes the button behave like a block-level element */
+}
+
+.guest-button:hover {
+  background-color: #333a59;
+  color: #ffffff;
+}
+
 
   .guest-button:hover {
     background-color: #333a59;
@@ -198,7 +206,10 @@
   </form>
 
   <!-- Continue as Guest Button -->
-  <a class="guest-button" href="../View/LearnifyFront/Learnify-html-template/invitee.php">Continuer en tant qu'invité</a>
+  <form action="../View/LearnifyFront/Learnify-html-template/invitee.php" method="GET">
+    <button class="guest-button" type="submit">Continuer en tant qu'invité</button>
+  </form>
+
 
   <!-- Forgot Password Link -->
   <div class="forgot-password">

@@ -52,6 +52,20 @@ class UserController{
             exit;
         }
     }
+    private function addHistory($userId, $action) {
+        try {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO history (user_id, action) VALUES (:user_id, :action)
+            ");
+            $stmt->execute([
+                'user_id' => $userId,
+                'action' => $action
+            ]);
+        } catch (Exception $e) {
+            error_log('Add History Error: ' . $e->getMessage());
+        }
+    }
+    
     
     
 
@@ -80,6 +94,7 @@ public function updateUser() {
 
         // Update logic
         if ($user->updateUser()) {
+            $this->addHistory($id, 'Profile updated');
             header('Location: ../View/userDetails.php?success=true');
         } else {
             header('Location: ../View/userDetails.php?error=true');
@@ -181,7 +196,8 @@ public function restrictUser() {
                         $_SESSION['user_id'] = $user['id'];
                         $_SESSION['user_name'] = $user['nom'] . ' ' . $user['prenom'];
                         $_SESSION['role'] = $user['role'];
-        
+                         // Log the login action
+                        $this->addHistory($user['id'], 'User logged in');
                         // Redirect based on user role
                         if ($user['role'] === 'manager_des_stages' || $user['role'] === 'admin') {
                             header('Location: ../View/userDetails.php');
@@ -205,6 +221,65 @@ public function restrictUser() {
             }
         }
     }
+    
+    public function viewHistory() {
+        // Check if user_id is passed in the URL
+        $userId = $_GET['user_id'] ?? null;
+    
+        if (!$userId) {
+            header('Location: ../View/usersList.php?error=missing_user_id');
+            exit();
+        }
+    
+        try {
+            // Fetch the user's history from the database
+            $stmt = $this->pdo->prepare("
+                SELECT action, action_date 
+                FROM history 
+                WHERE user_id = :user_id 
+                ORDER BY action_date DESC
+            ");
+            $stmt->execute(['user_id' => $userId]);
+            $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            // Debugging: Log the fetched history
+            error_log("Fetched history for user_id $userId: " . print_r($history, true));
+    
+            // Include the history view
+            require '../View/history.php';
+        } catch (Exception $e) {
+            // Log the error and redirect with a message
+            error_log("Error fetching history: " . $e->getMessage());
+            header('Location: ../View/usersList.php?error=history_failed');
+        }
+    }
+    
+    
+    
+    
+    
+    public function viewAllUsers() {
+        try {
+            // Prepare and execute the query
+            $stmt = $this->pdo->prepare("SELECT id, nom, prenom FROM user ORDER BY nom ASC");
+            $stmt->execute();
+            $users = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch as an associative array
+    
+            // Debugging: Log the fetched users
+            error_log("Fetched users: " . print_r($users, true));
+    
+            // Pass the users to the view
+            require '../View/usersList.php';
+        } catch (Exception $e) {
+            // Log the error for debugging
+            error_log('Error fetching users: ' . $e->getMessage());
+    
+            // Redirect to a fallback page
+            header('Location: ../View/userDetails.php?error=fetch_users_failed');
+        }
+    }
+    
+    
     
     
     
@@ -401,6 +476,13 @@ if (isset($_GET['action'])) {
         case 'passwordReset':
             $controller->passwordReset();
             break;
+        case 'viewAllUsers':
+            $controller->viewAllUsers();
+            break;
+        case 'viewHistory':
+            $controller->viewHistory();
+            break;
+            
             
         default:
             header('Location: ../View/userDetails.php?error=unknown_action');

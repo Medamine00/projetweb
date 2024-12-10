@@ -29,7 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'password' => $hashedPassword,
                 'token' => $token
             ]);
-
+                // Log the password reset action
+            $this->addHistory($user['id'], 'Password reset');
             header('Location: ../View/login.php?success=password_reset');
             exit();
         } else {
