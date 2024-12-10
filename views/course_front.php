@@ -61,7 +61,7 @@
                 </div>
                 <a href="contact.html" class="nav-item nav-link">Contact</a>
             </div>
-            <a href="" class="btn btn-primary py-4 px-lg-5 d-none d-lg-block">Join Now<i class="fa fa-arrow-right ms-3"></i></a>
+            <a href="" class="btn btn-primary py-4 px-lg-5 d-none d-lg-block">Join Live<i class="fa fa-arrow-right ms-3"></i></a>
         </div>
     </nav>
     <!-- Navbar End -->
@@ -183,10 +183,10 @@ $price_range = $conn->query("SELECT MIN(price) AS min_price, MAX(price) AS max_p
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center">FAQ - Questions Dynamiques</h1>
+        <h1 class="text-center">Ask Questions</h1>
 
         <div class="faq-section">
-            <h2>Posez votre question</h2>
+            <h2>your question</h2>
             <select id="questionSelector" class="form-control mt-3">
                 <option value="">-- Sélectionnez une question --</option>
                 <option value="total_courses">Combien de cours sont disponibles ?</option>
@@ -310,35 +310,12 @@ $stmt_courses->execute();
 $courses = $stmt_courses->fetchAll();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Management</title>
-    <link rel="stylesheet" href="path/to/bootstrap.css">
-    <style>
-        .star-rating {
-            display: flex;
-            cursor: pointer;
-            font-size: 25px;
-            color: #ccc;
-        }
-        .star-rating .fa-star {
-            margin-right: 5px;
-        }
-        .star-rating .fa-star.checked {
-            color: #FFD700;
-        }
-    </style>
-</head>
-<body>
 <!-- Courses Section -->
 <div class="container-xxl py-5">
     <div class="container">
         <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
             <h6 class="section-title bg-white text-center text-primary px-3">Courses</h6>
-            <h1 class="mb-5">Popular Courses</h1>
+            <h1 class="mb-5"> Courses</h1>
         </div>
         <div class="row g-4 justify-content-center">
             <?php foreach ($courses as $course): ?>
@@ -348,12 +325,13 @@ $courses = $stmt_courses->fetchAll();
                             <img class="img-fluid" src="/Learnify web site/views/Frontend/img/course-1.jpg" alt="">
 
                             <div class="w-100 d-flex justify-content-center position-absolute bottom-0 start-0 mb-4">
-                                <a href="#" class="flex-shrink-0 btn btn-sm btn-primary px-3" style="border-radius: 0 30px 30px 0;" data-bs-toggle="modal" data-bs-target="#joinNowModal" 
-                                   data-course-title="<?= htmlspecialchars($course['course_title']) ?>" 
-                                   data-tutor="<?= htmlspecialchars($course['tutor_name']) ?>" 
-                                   data-subject="Course Subject" 
-                                   data-duration="1.49" 
-                                   data-price="<?= htmlspecialchars($course['price']) ?>">Join Now</a>
+                                <!-- Button to Join Course (Redirect to meeting link) -->
+                                <?php if (!empty($course['linkmeeting'])): ?>
+                                    <a href="<?= htmlspecialchars($course['linkmeeting']) ?>" class="flex-shrink-0 btn btn-sm btn-primary px-3" 
+                                       style="border-radius: 0 30px 30px 0;" target="_blank">
+                                       Join live
+                                    </a>
+                                <?php endif; ?>
 
                                 <?php 
                                 // Vérifier si le cours est déjà dans la wishlist
@@ -441,10 +419,6 @@ $courses = $stmt_courses->fetchAll();
         });
     });
 </script>
-
-<script src="path/to/bootstrap.js"></script>
-</body>
-</html>
 
     <!-- Testimonial Start -->
     <div class="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">

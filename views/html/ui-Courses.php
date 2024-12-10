@@ -542,11 +542,10 @@
           </style>
       </head>
       <body>
-      
-      
+     
 
-      <?php
-// Inclure la configuration de la base de données
+ <?php
+// Include database configuration
 include("C:/xampp2/htdocs/Learnify web site/config.php");
 ?>
 
@@ -596,6 +595,9 @@ include("C:/xampp2/htdocs/Learnify web site/config.php");
             <textarea class="form-control" name="description" placeholder="Course description:"></textarea>
         </div>
         <div class="form-element my-4">
+            <input type="text" class="form-control" name="linkmeeting" id="linkmeeting" placeholder="Meeting Link (optional):">
+        </div>
+        <div class="form-element my-4">
             <input type="submit" class="btn btn-success" name="subscribe" value="Add Course">
         </div>
     </form>
@@ -610,11 +612,12 @@ include("C:/xampp2/htdocs/Learnify web site/config.php");
             $description = htmlspecialchars(trim($_POST["description"]));
             $duration = htmlspecialchars(trim($_POST["duration"]));
             $price = floatval($_POST["price"]);
+            $linkmeeting = isset($_POST["linkmeeting"]) ? htmlspecialchars(trim($_POST["linkmeeting"])) : null; // New field for linkmeeting
 
             if (!empty($course_title) && !empty($tutor_name) && $id_categorie > 0 && !empty($description) && !empty($duration) && $price > 0) {
                 // Insert into the 'courses' table
-                $sql_courses = "INSERT INTO courses (course_title, tutor_name, id_categorie, duration, price, description) 
-                                VALUES (:course_title, :tutor_name, :id_categorie, :duration, :price, :description)";
+                $sql_courses = "INSERT INTO courses (course_title, tutor_name, id_categorie, duration, price, description, linkmeeting) 
+                                VALUES (:course_title, :tutor_name, :id_categorie, :duration, :price, :description, :linkmeeting)";
                 $stmt_courses = $conn->prepare($sql_courses);
                 $stmt_courses->bindParam(':course_title', $course_title);
                 $stmt_courses->bindParam(':tutor_name', $tutor_name);
@@ -622,9 +625,10 @@ include("C:/xampp2/htdocs/Learnify web site/config.php");
                 $stmt_courses->bindParam(':duration', $duration);
                 $stmt_courses->bindParam(':price', $price);
                 $stmt_courses->bindParam(':description', $description);
+                $stmt_courses->bindParam(':linkmeeting', $linkmeeting); // Bind the new field
                 $stmt_courses->execute();
 
-                echo "<div class='alert alert-success'>Course successfully subscribed!</div>";
+                echo "<div class='alert alert-success'>Course successfully added!</div>";
             } else {
                 echo "<div class='alert alert-warning'>All fields are required and must be valid.</div>";
             }
@@ -643,6 +647,7 @@ include("C:/xampp2/htdocs/Learnify web site/config.php");
         const durationSelect = document.querySelector('select[name="duration"]').value;
         const price = document.getElementById('price').value.trim();
         const description = document.querySelector('textarea[name="description"]').value.trim();
+        const linkmeeting = document.getElementById('linkmeeting').value.trim();
 
         if (!courseTitle || !/^[A-Za-z\s]+$/.test(courseTitle)) {
             alert("Course title is required and must contain letters only.");
@@ -668,6 +673,10 @@ include("C:/xampp2/htdocs/Learnify web site/config.php");
             alert("Description must be between 1 and 500 characters.");
             return false;
         }
+        if (linkmeeting && !/^https?:\/\/[^\s]+$/.test(linkmeeting)) {  // Validate the meeting link if it's provided
+            alert("Please enter a valid meeting link.");
+            return false;
+        }
         return true;
     }
 </script>
@@ -675,16 +684,36 @@ include("C:/xampp2/htdocs/Learnify web site/config.php");
 <header class="d-flex justify-content-between my-4">
     <h1>Course Management</h1>
 </header>
+<?php
+// Par défaut, trier par 'id' en ordre ascendant
+$sort_column = isset($_GET['sort_column']) ? $_GET['sort_column'] : 'id';
+$sort_order = isset($_GET['sort_order']) ? $_GET['sort_order'] : 'ASC';
+
+// Liste des colonnes autorisées pour éviter les injections SQL
+$valid_columns = ['id', 'course_title', 'tutor_name', 'id_categorie', 'duration', 'price', 'description', 'linkmeeting'];
+
+// Vérifier si la colonne demandée est valide
+if (!in_array($sort_column, $valid_columns)) {
+    $sort_column = 'id'; // Défaut si la colonne n'est pas valide
+}
+
+// Vérifier si l'ordre est 'ASC' ou 'DESC'
+$sort_order = ($sort_order === 'DESC') ? 'DESC' : 'ASC';
+
+// Requête SQL avec tri dynamique
+$sql = "SELECT * FROM courses ORDER BY $sort_column $sort_order";
+?>
 <table class="table table-bordered">
     <thead>
     <tr>
-        <th>ID</th>
-        <th>Course Title</th>
-        <th>Tutor Name</th>
-        <th>Category ID</th>
-        <th>Duration</th>
-        <th>Price</th>
-        <th>Description</th>
+        <th><a href="?sort_column=id&sort_order=<?php echo $sort_order === 'ASC' ? 'DESC' : 'ASC'; ?>">ID</a></th>
+        <th><a href="?sort_column=course_title&sort_order=<?php echo $sort_order === 'ASC' ? 'DESC' : 'ASC'; ?>">Course Title</a></th>
+        <th><a href="?sort_column=tutor_name&sort_order=<?php echo $sort_order === 'ASC' ? 'DESC' : 'ASC'; ?>">Tutor Name</a></th>
+        <th><a href="?sort_column=id_categorie&sort_order=<?php echo $sort_order === 'ASC' ? 'DESC' : 'ASC'; ?>">Category ID</a></th>
+        <th><a href="?sort_column=duration&sort_order=<?php echo $sort_order === 'ASC' ? 'DESC' : 'ASC'; ?>">Duration</a></th>
+        <th><a href="?sort_column=price&sort_order=<?php echo $sort_order === 'ASC' ? 'DESC' : 'ASC'; ?>">Price</a></th>
+        <th><a href="?sort_column=description&sort_order=<?php echo $sort_order === 'ASC' ? 'DESC' : 'ASC'; ?>">Description</a></th>
+        <th><a href="?sort_column=linkmeeting&sort_order=<?php echo $sort_order === 'ASC' ? 'DESC' : 'ASC'; ?>">Meeting Link</a></th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -693,8 +722,7 @@ include("C:/xampp2/htdocs/Learnify web site/config.php");
     include("C:/xampp2/htdocs/Learnify web site/config.php");
 
     try {
-        // Requête SQL avec PDO
-        $sql = "SELECT * FROM courses";
+        // Préparer la requête SQL avec tri dynamique
         $stmt = $conn->prepare($sql);
         $stmt->execute();
 
@@ -710,6 +738,14 @@ include("C:/xampp2/htdocs/Learnify web site/config.php");
                 <td><?php echo htmlspecialchars($row['price']); ?></td>
                 <td><?php echo htmlspecialchars($row['description']); ?></td>
                 <td>
+                    <!-- Afficher le lien de réunion ou un bouton pour l'ouvrir -->
+                    <?php if (!empty($row['linkmeeting'])): ?>
+                        <a href="<?php echo htmlspecialchars($row['linkmeeting']); ?>" target="_blank" class="btn btn-info">Join Meeting</a>
+                    <?php else: ?>
+                        <span>No link available</span>
+                    <?php endif; ?>
+                </td>
+                <td>
                     <a href="edit.php?id=<?php echo urlencode($row['id']); ?>" class="btn btn-warning">Edit</a>
                     <a href="delete.php?id=<?php echo urlencode($row['id']); ?>" class="btn btn-danger">Delete</a>
                 </td>
@@ -717,39 +753,12 @@ include("C:/xampp2/htdocs/Learnify web site/config.php");
             <?php
         }
     } catch (PDOException $e) {
-        echo "<tr><td colspan='8'>Error: " . htmlspecialchars($e->getMessage()) . "</td></tr>";
+        echo "<tr><td colspan='9'>Error: " . htmlspecialchars($e->getMessage()) . "</td></tr>";
     }
     ?>
     </tbody>
 </table>
-<?php
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["add_category"])) {
-    try {
-        // Sanitize and validate inputs
-        $nom_categorie = htmlspecialchars(trim($_POST["nom_categorie"]));
-        $description = htmlspecialchars(trim($_POST["description"]));
-        $date_creation = htmlspecialchars(trim($_POST["date_creation"]));
 
-        // Validate the inputs
-        if (!empty($nom_categorie) && !empty($description) && !empty($date_creation)) {
-            // Insert into the 'categorie' table
-            $sql_category = "INSERT INTO categorie (nom_categorie, description, date_creation) 
-                             VALUES (:nom_categorie, :description, :date_creation)";
-            $stmt_category = $conn->prepare($sql_category);
-            $stmt_category->bindParam(':nom_categorie', $nom_categorie);
-            $stmt_category->bindParam(':description', $description);
-            $stmt_category->bindParam(':date_creation', $date_creation);
-            $stmt_category->execute();
-
-            echo "<div class='alert alert-success'>Category successfully added!</div>";
-        } else {
-            echo "<div class='alert alert-warning'>All fields are required.</div>";
-        }
-    } catch (PDOException $e) {
-        echo "<div class='alert alert-danger'>Database error: " . htmlspecialchars($e->getMessage()) . "</div>";
-    }
-}
-?>
 
 <!-- Formulaire pour ajouter une nouvelle catégorie -->
 <div class="container my-4">
@@ -850,66 +859,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["add_category"])) {
 </html>
 
     <!-- Formulaire de recherche par catégorie -->
-    <h1>Search Courses by Category</h1>
-<form method="get" action="">
-    <div class="mb-3">
-        <label for="id_categorie" class="form-label">Category:</label>
-        <select id="id_categorie" name="id_categorie" class="form-control" required>
-            <option value="">Select a category</option>
-            <?php
-            try {
-                // Fetch unique category names from the database
-                $sql = "SELECT MIN(id_categorie) as id_categorie, nom_categorie FROM categorie GROUP BY nom_categorie";
-                $stmt = $conn->prepare($sql);
-                $stmt->execute();
+    <?php
+include("C:/xampp2/htdocs/Learnify web site/config.php");
+?>
 
-                // Populate the dropdown with unique category names
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    echo "<option value=\"" . htmlspecialchars($row['id_categorie']) . "\">" . htmlspecialchars($row['nom_categorie']) . "</option>";
-                }
-            } catch (PDOException $e) {
-                echo "<option value=\"\">Error loading categories</option>";
-            }
-            ?>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Search</button>
-</form>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Courses</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container my-5">
+    <h1 class="mb-4">Search Courses</h1>
+    <!-- Formulaire de recherche dynamique -->
+    <form method="get" action="">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="search_criteria" class="form-label">Search By:</label>
+                <select id="search_criteria" name="criteria" class="form-select" required>
+                    <option value="">Select a criteria</option>
+                    <option value="id_categorie">Category</option>
+                    <option value="course_title">Course Title</option>
+                    <option value="tutor_name">Tutor Name</option>
+                    <option value="duration">Duration</option>
+                    <option value="price">Price</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="search_value" class="form-label">Value:</label>
+                <input type="text" id="search_value" name="value" class="form-control" placeholder="Enter value" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
 
     <?php
-    // Recherche des cours en fonction de la catégorie sélectionnée
-    if (isset($_GET['id_categorie']) && !empty($_GET['id_categorie'])) {
-        $id_categorie = intval($_GET['id_categorie']); // Sécurisation de la valeur
+    if (!empty($_GET['criteria']) && !empty($_GET['value'])) {
+        $criteria = $_GET['criteria'];
+        $value = $_GET['value'];
 
         try {
-            // Requête SQL pour rechercher les cours par id_categorie
+            // Liste blanche des critères valides pour éviter les erreurs SQL
+            $allowedCriteria = ['id_categorie', 'course_title', 'tutor_name', 'duration', 'price'];
+            if (!in_array($criteria, $allowedCriteria)) {
+                throw new Exception("Invalid search criteria.");
+            }
+
+            // Requête SQL dynamique avec une condition WHERE utilisant les critères
             $sql = "SELECT 
-                        courses.id AS course_id,
-                        courses.course_title,
-                        courses.tutor_name,
-                        courses.duration,
-                        courses.price,
-                        categorie.nom_categorie,
-                        categorie.description,
-                        categorie.date_creation
-                    FROM 
-                        courses
-                    INNER JOIN 
-                        categorie 
-                    ON 
-                        courses.id_categorie = categorie.id_categorie
-                    WHERE 
-                        categorie.id_categorie = :id_categorie";
+            courses.id AS course_id,
+            courses.course_title,
+            courses.tutor_name,
+            courses.duration,
+            courses.price,
+            courses.description AS course_description,
+            courses.linkmeeting,
+            categorie.nom_categorie,
+            categorie.description AS category_description,
+            categorie.date_creation
+        FROM 
+            courses
+        INNER JOIN 
+            categorie 
+        ON 
+            courses.id_categorie = categorie.id_categorie
+        WHERE courses.$criteria LIKE :value";
+
+
+            // Préparer la requête
             $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':id_categorie', $id_categorie, PDO::PARAM_INT);
+
+            // Vérification des types selon le critère choisi
+            if ($criteria === 'id_categorie' || $criteria === 'duration' || $criteria === 'price') {
+                // Pour les critères numériques (id_categorie, duration, price), on utilise un entier
+                $stmt->bindValue(':value', intval($value), PDO::PARAM_INT);
+            } else {
+                // Pour les critères de texte, on utilise une chaîne
+                $stmt->bindValue(':value', "%$value%", PDO::PARAM_STR);
+            }
+
+            // Exécution de la requête
             $stmt->execute();
 
             // Récupérer les résultats
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if ($result) {
-                echo "<h2 class='my-4'>Courses for Category ID: $id_categorie</h2>";
+            // Affichage des résultats
+            if ($results) {
+                echo "<h2 class='my-4'>Search Results</h2>";
                 echo "<table class='table table-bordered'>";
                 echo "<thead>";
                 echo "<tr>";
@@ -918,35 +958,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["add_category"])) {
                 echo "<th>Tutor Name</th>";
                 echo "<th>Duration</th>";
                 echo "<th>Price</th>";
+                echo "<th>Course Description</th>";
+                echo "<th>Meeting Link</th>";
                 echo "<th>Category Name</th>";
+                echo "<th>Category Description</th>";
+                echo "<th>Date Creation</th>";
                 echo "</tr>";
                 echo "</thead>";
                 echo "<tbody>";
 
-                foreach ($result as $row) {
+                // Boucle pour afficher les résultats
+                foreach ($results as $row) {
                     echo "<tr>";
                     echo "<td>" . htmlspecialchars($row['course_id']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['course_title']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['tutor_name']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['duration']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['price']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['course_description']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['linkmeeting']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['nom_categorie']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['category_description']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['date_creation']) . "</td>";
                     echo "</tr>";
                 }
 
                 echo "</tbody>";
                 echo "</table>";
             } else {
-                echo "<div class='alert alert-warning'>No courses found for this category!</div>";
+                echo "<div class='alert alert-warning'>No results found for the selected criteria.</div>";
             }
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             echo "<div class='alert alert-danger'>Error: " . htmlspecialchars($e->getMessage()) . "</div>";
         }
     }
     ?>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+
 <?php
 // Inclure la configuration
 include("C:/xampp2/htdocs/Learnify web site/config.php");
@@ -1005,17 +1058,29 @@ $pourcentagesJson = json_encode($pourcentages);
     // Configuration du graphique
     const ctx = document.getElementById('categoryChart').getContext('2d');
     const categoryChart = new Chart(ctx, {
-        type: 'line', // Type de graphique
+        type: 'bar', // Type de graphique
         data: {
             labels: categories, // Noms des catégories
             datasets: [{
                 label: 'Percentage of Courses (%)',
                 data: pourcentages, // Pourcentages par catégorie
-                borderColor: 'rgba(75, 192, 192, 1)', // Couleur de la ligne
-                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Couleur de fond sous la courbe
-                borderWidth: 2, // Épaisseur de la ligne
-                tension: 0.4, // Courbure de la ligne
-                pointBackgroundColor: 'rgba(255, 99, 132, 1)', // Couleur des points
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',  // Rouge
+                    'rgba(54, 162, 235, 0.6)',  // Bleu
+                    'rgba(255, 206, 86, 0.6)',  // Jaune
+                    'rgba(75, 192, 192, 0.6)',  // Vert
+                    'rgba(153, 102, 255, 0.6)', // Violet
+                    'rgba(255, 159, 64, 0.6)'   // Orange
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1, // Épaisseur des bordures
             }]
         },
         options: {
